@@ -1,6 +1,6 @@
 package com.vikas.demo.service;
 
-import com.vikas.demo.entity.UserEntity;
+import com.vikas.demo.entity.User;
 import com.vikas.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,13 +15,13 @@ public class SignupServices {
     @Autowired
     private UserRepository userRepository;
 
-    public void addUser(UserEntity userEntity){
+    public void addUser(User userEntity){
         userEntity.setCreatedAt(LocalDateTime.now());
         userRepository.save(userEntity);
         return ;
     }
 
-    public List<UserEntity> getAllUsers(){
+    public List<User> getAllUsers(){
         return userRepository.findAll();
     }
 }

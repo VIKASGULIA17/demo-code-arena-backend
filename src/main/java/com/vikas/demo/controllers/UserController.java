@@ -1,10 +1,10 @@
 package com.vikas.demo.controllers;
 
-import com.adityavikas.codeverse.dto.APIResponseDTO;
-import com.adityavikas.codeverse.entity.User;
-import com.adityavikas.codeverse.repository.UserRepository;
-import com.adityavikas.codeverse.services.UserService;
-import com.adityavikas.codeverse.utils.JwtUtils;
+import com.vikas.demo.dto.APIResponseDTO;
+import com.vikas.demo.entity.User;
+import com.vikas.demo.repository.UserRepository;
+import com.vikas.demo.service.UserService;
+import com.vikas.demo.utils.JwtUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;

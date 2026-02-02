@@ -1,11 +1,11 @@
 package com.vikas.demo.controllers;
 
-import com.adityavikas.codeverse.dto.LoginUserDTO;
-import com.adityavikas.codeverse.dto.UserDTO;
-import com.adityavikas.codeverse.entity.User;
-import com.adityavikas.codeverse.services.UserDetailsServiceImpl;
-import com.adityavikas.codeverse.services.UserService;
-import com.adityavikas.codeverse.utils.JwtUtils;
+import com.vikas.demo.dto.LoginUserDTO;
+import com.vikas.demo.dto.UserDTO;
+import com.vikas.demo.entity.User;
+import com.vikas.demo.service.UserDetailsServiceImpl;
+import com.vikas.demo.service.UserService;
+import com.vikas.demo.utils.JwtUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

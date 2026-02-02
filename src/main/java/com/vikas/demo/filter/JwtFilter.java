@@ -1,7 +1,7 @@
 package com.vikas.demo.filter;
 
-import com.adityavikas.codeverse.services.UserDetailsServiceImpl;
-import com.adityavikas.codeverse.utils.JwtUtils;
+import com.vikas.demo.service.UserDetailsServiceImpl;
+import com.vikas.demo.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

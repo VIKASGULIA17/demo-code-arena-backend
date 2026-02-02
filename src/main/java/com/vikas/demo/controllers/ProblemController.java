@@ -1,8 +1,8 @@
 package com.vikas.demo.controllers;
 
-import com.adityavikas.codeverse.dto.ProblemDTO;
-import com.adityavikas.codeverse.entity.Problem;
-import com.adityavikas.codeverse.services.ProblemService;
+import com.vikas.demo.dto.ProblemDTO;
+import com.vikas.demo.entity.Problem;
+import com.vikas.demo.service.ProblemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,12 +53,12 @@ public class ProblemController {
         try{
             List<Problem> allProblems = problemService.fetchAllProblems();
             if(allProblems.isEmpty()){
-                return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>("",HttpStatus.NO_CONTENT);
             }
             return new ResponseEntity<>(allProblems,HttpStatus.OK);
         }
         catch(Exception e){
-            return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("",HttpStatus.BAD_REQUEST);
         }
     }
 
