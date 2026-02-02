@@ -22,7 +22,6 @@ public class ContestEntity {
     private String contestName;
     @NonNull
     private String contestDescription;
-
     private int duration;
     private LocalDateTime startTime;
 
