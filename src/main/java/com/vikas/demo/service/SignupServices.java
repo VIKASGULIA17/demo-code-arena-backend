@@ -5,7 +5,6 @@ import com.vikas.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 

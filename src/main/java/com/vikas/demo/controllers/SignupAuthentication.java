@@ -1,11 +1,11 @@
 package com.vikas.demo.controllers;
 
-import java.util.List;
-
 import com.vikas.demo.entity.User;
 import com.vikas.demo.service.SignupServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/signup")

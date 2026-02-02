@@ -1,6 +1,0 @@
-com/vikas/demo/controllers/loginAuthentication.class
-com/vikas/demo/controllers/HealthCheck.class
-com/vikas/demo/DemoApplication.class
-com/vikas/demo/service/UserEntryService.class
-com/vikas/demo/repository/UserDetailRepository.class
-com/vikas/demo/entity/UserEntity.class
