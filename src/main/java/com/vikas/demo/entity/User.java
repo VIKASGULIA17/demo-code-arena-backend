@@ -1,5 +1,6 @@
 package com.vikas.demo.entity;
 
+import jakarta.validation.constraints.NotNull;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -20,60 +21,10 @@ public class User {
     private ObjectId userId;
 
     @Indexed(unique = true)
-    @NonNull
+    @NotNull
     private String userName;
 
-    public ObjectId getUserId() {
-        return userId;
-    }
-
-    public void setUserId(ObjectId userId) {
-        this.userId = userId;
-    }
-
-    @NonNull
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(@NonNull String userName) {
-        this.userName = userName;
-    }
-
-    @NonNull
-    public String getEmailId() {
-        return emailId;
-    }
-
-    public void setEmailId(@NonNull String emailId) {
-        this.emailId = emailId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public List<String> getRole() {
-        return role;
-    }
-
-    public void setRole(List<String> role) {
-        this.role = role;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    @NonNull
+    @NotNull
     private String emailId;
     private String password;
     private List<String> role;

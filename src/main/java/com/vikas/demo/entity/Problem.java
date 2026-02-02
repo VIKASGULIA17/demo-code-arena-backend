@@ -1,5 +1,6 @@
 package com.vikas.demo.entity;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NonNull;
 import org.bson.types.ObjectId;
@@ -20,7 +21,7 @@ public class Problem{
 
     @Indexed(unique = true)
     private int sno;
-    @NonNull
+    @NotNull
     private String title;
     private String slug;
     List<String> topicTags = new ArrayList<>();

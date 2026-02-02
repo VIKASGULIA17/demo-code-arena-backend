@@ -54,7 +54,7 @@ public class UserController {
                 throw new Exception("Invalid Jwt token");
             }
 
-            APIResponseDTO apiResponse = new APIResponseDTO(user.getUsername(),user.getEmail(),user.getRoles());
+            APIResponseDTO apiResponse = new APIResponseDTO(user.getUserName(),user.getEmailId(),user.getRole());
 
             return new ResponseEntity<>(apiResponse,HttpStatus.OK);
         }

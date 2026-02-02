@@ -24,7 +24,7 @@ public class UserService {
     public boolean saveUserWithBcryptPassword(User user){
         try{
             // hashing password
-            user.setCreated_at(LocalDateTime.now());
+            user.setCreatedAt(LocalDateTime.now());
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             userRepository.save(user);
         }

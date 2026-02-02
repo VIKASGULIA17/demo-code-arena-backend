@@ -49,11 +49,11 @@ public class PublicController {
         Map<String,Integer> returnStatus = new HashMap<>();
         returnStatus.put("status",0);
         User user = new User();
-        user.setUsername(userDTO.getUsername());
+        user.setUserName(userDTO.getUsername());
         user.setPassword(userDTO.getPassword());
-        user.setEmail(userDTO.getEmail());
+        user.setEmailId(userDTO.getEmail());
         try{
-            user.setRoles(List.of("USER"));
+            user.setRole(List.of("USER"));
             boolean isSaved = userService.saveUserWithBcryptPassword(user);
 
             if(isSaved) {
@@ -73,15 +73,15 @@ public class PublicController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO){
         User user = new User();
-        user.setUsername(userDTO.getUsername());
+        user.setUserName(userDTO.getUsername());
         user.setPassword(userDTO.getPassword());
         Map<String,Object> returnResponse = new HashMap<>();
         returnResponse.put("jwtToken","");
         try{
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword())
+                    new UsernamePasswordAuthenticationToken(user.getUserName(),user.getPassword())
             );
-            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUserName());
             String jwt = jwtUtils.generateToken(userDetails.getUsername());
             returnResponse.put("jwtToken",jwt);
             returnResponse.put("status",1);

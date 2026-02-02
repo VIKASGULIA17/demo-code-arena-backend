@@ -1,5 +1,6 @@
 package com.vikas.demo.controllers;
 
+import com.vikas.demo.dto.AdminDTO;
 import com.vikas.demo.entity.User;
 import com.vikas.demo.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin")
 @Tag(name="All Admin API's",description = "this is the admin controller where only admin can do the neccessary change to our codeverse system application not used is allowed.")
-public class AdminController<AdminDTO> {
+public class AdminController {
 
     @Autowired
     private UserService userService;
@@ -25,10 +26,10 @@ public class AdminController<AdminDTO> {
     public ResponseEntity<?> createAdmin(@RequestBody AdminDTO adminDTO){
         try{
             User admin = new User();
-            admin.setEmail(adminDTO.getEmail());
-            admin.setUsername(adminDTO.getUsername());
+            admin.setEmailId(adminDTO.getEmail());
+            admin.setUserName(adminDTO.getUsername());
             admin.setPassword(adminDTO.getPassword());
-            admin.setRoles(List.of("ADMIN","USER"));   //giving both provisions
+            admin.setRole(List.of("ADMIN","USER"));   //giving both provisions
             boolean isAdminCreated = userService.saveUserWithBcryptPassword(admin);
             if(isAdminCreated){
                 return new ResponseEntity<>("Admin created successfully...", HttpStatus.OK);
@@ -45,12 +46,12 @@ public class AdminController<AdminDTO> {
         try{
             List<User> allUsers = userService.getAllUsers();
             if(allUsers.isEmpty()){
-                return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>("",HttpStatus.NO_CONTENT);
             }
             return new ResponseEntity<>(allUsers,HttpStatus.OK);
         }
         catch(Exception e){
-            return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("",HttpStatus.BAD_REQUEST);
         }
     }
 }
