@@ -5,4 +5,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ContestRepository extends MongoRepository<ContestEntity, ObjectId> {
+    ContestEntity findByContestName(String contestName);
+
+    void deleteByContestName(String contestName);
 }

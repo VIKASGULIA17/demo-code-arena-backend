@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -25,7 +26,8 @@ public class ContestEntity {
     private int duration;
     private LocalDateTime startTime;
 
-    private List<String> registrations;
+    private List<ObjectId> registeredUserIds=new ArrayList<>();
+
 
 //  private List<ProblemEntity> problemList;
     @Transient

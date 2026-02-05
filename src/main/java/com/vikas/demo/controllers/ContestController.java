@@ -2,6 +2,7 @@ package com.vikas.demo.controllers;
 
 import com.vikas.demo.entity.ContestEntity;
 import com.vikas.demo.service.ContestServices;
+import org.springframework.security.core.Authentication;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,27 +15,22 @@ import java.util.Optional;
 @RequestMapping("/contests")
 public class ContestController {
 
+
+
     @Autowired
     private ContestServices contestServices;
 
-    @PostMapping
-    private ResponseEntity<?> createContest(@RequestBody ContestEntity contestEntity){
-        return contestServices.addContest(contestEntity);
-    }
 
-    @GetMapping
-    private ResponseEntity<?> getContest(){
-        return contestServices.getAllContests();
-    }
 
-    @GetMapping("{contestId}")
-    private ResponseEntity<?> getContestInfo(@PathVariable ObjectId contestId){
+    @GetMapping("/{contestName}")
+    private ResponseEntity<?> getContestInfo(@PathVariable String contestName){
+
         try{
-            Optional<ContestEntity> contestInfo=contestServices.getContestInfo(contestId);
-            if(contestInfo.isPresent()){
+            ContestEntity contestInfo=contestServices.findByContestName(contestName);
+            if(contestInfo!=null){
                 return new ResponseEntity<>(contestInfo, HttpStatus.FOUND);
             }else{
-                return new ResponseEntity<>("There is no Contest With ID :" +contestId,HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("There is no Contest With Name :" +contestName,HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -42,13 +38,13 @@ public class ContestController {
         }
     }
 
-    @DeleteMapping("{contestId}")
-    private ResponseEntity<?> deleteContest(@PathVariable ObjectId contestId){
-        return contestServices.deleteContestById(contestId);
+
+    @PostMapping("/{contestId}/register")
+    public ResponseEntity<?> registerInContest(@PathVariable String contestId, Authentication authentication) {
+        // This is the standard Spring Security method
+        String username = authentication.getName();
+
+        return contestServices.registerInContest(contestId,username);
     }
 
-    @PutMapping("{contestId}")
-    private ResponseEntity<?> modifyContest(@PathVariable ObjectId contestId,@RequestBody ContestEntity contestEntity){
-        return contestServices.modifyContestById(contestId,contestEntity);
-    }
 }
