@@ -1,5 +1,7 @@
 package com.vikas.demo.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.bson.types.ObjectId;
@@ -16,6 +18,7 @@ import java.util.List;
 @Data
 public class Problem{
     @Id
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;   //mongo unique id assigned auto by atlas
 
     @Indexed(unique = true)

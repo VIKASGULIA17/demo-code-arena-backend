@@ -17,10 +17,12 @@ public class SpringSecurity {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable()) // Keep disabled for Postman testing
                 .authorizeHttpRequests(auth -> auth
-
+                        .requestMatchers("/signup/**").permitAll()
                         .requestMatchers("/public/**").permitAll()
+                        .requestMatchers("/badge/**").permitAll()
                         // 1. ADMIN ZONE: Lock down EVERYTHING under /admin to the ADMIN role
                         // This covers /admin/users, /admin/create-contest, etc.
                         .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -28,6 +30,8 @@ public class SpringSecurity {
                         // 2. CONTEST REGISTRATION: Any authenticated user can register
                         // Specific enough to not conflict with GET requests
                         .requestMatchers(HttpMethod.POST, "/contests/*/register").authenticated()
+
+                        .requestMatchers(HttpMethod.POST, "/profile").authenticated()
 
                         // 3. CONTEST VIEWING: Anyone (even not logged in) can view contests
                         .requestMatchers(HttpMethod.GET, "/contests/**").permitAll()
@@ -37,8 +41,7 @@ public class SpringSecurity {
 
                         // 5. FALLBACK: Secure by default. Anything else requires authentication.
                         // Change 'permitAll()' to 'authenticated()' for better security.
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
