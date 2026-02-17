@@ -23,6 +23,21 @@ public class ProblemSubmissionServices {
         try{
             List<ProblemSubmissionEntity> problemSubmissionList=problemSubmissionRepository.findByUsername(username);
 
+
+            if(problemSubmissionList.isEmpty()){
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }else{
+                return new ResponseEntity<>(problemSubmissionList,HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<?> getALlSubmissionOfSameProblemOfUser(String username,ObjectId problemid){
+        try{
+            List<ProblemSubmissionEntity> problemSubmissionList=problemSubmissionRepository.findByUsernameAndProblemId(username,problemid);
             if(problemSubmissionList.isEmpty()){
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }else{

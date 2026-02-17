@@ -28,6 +28,11 @@ public class ProblemSubmissionController {
         return problemSubmissionServices.getSubmission(submissionId);
     }
 
+    @GetMapping("/problem/{problemId}")
+    private ResponseEntity<?> getAllSubmissionOfSameProblem(@PathVariable ObjectId problemId,Authentication authentication){
+        return problemSubmissionServices.getALlSubmissionOfSameProblemOfUser(authentication.getName(),problemId);
+    }
+
     @PostMapping
     private ResponseEntity<?> createNewSubmission(@RequestBody ProblemSubmissionEntity newEntry,Authentication authentication){
         newEntry.setUsername(authentication.getName());
