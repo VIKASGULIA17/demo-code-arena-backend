@@ -39,12 +39,12 @@ public class ContestController {
     }
 
 
-    @PostMapping("/{contestId}/register")
-    public ResponseEntity<?> registerInContest(@PathVariable String contestId, Authentication authentication) {
+    @PostMapping("/{contestName}/register")
+    public ResponseEntity<?> registerInContest(@PathVariable String contestName, Authentication authentication) {
         // This is the standard Spring Security method
         String username = authentication.getName();
 
-        return contestServices.registerInContest(contestId,username);
+        return contestServices.registerInContest(contestName,username);
     }
 
 }

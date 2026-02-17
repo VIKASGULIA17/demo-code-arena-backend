@@ -1,55 +1,69 @@
 package com.vikas.demo.config;
 
+import com.vikas.demo.filter.JwtFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // Added for cleaner code
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SpringSecurity {
 
+    @Autowired
+    private JwtFilter jwtFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable()) // Keep disabled for Postman testing
+                // 1. Disable CSRF for stateless APIs
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/signup/**").permitAll()
-                        .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/badge/**").permitAll()
-                        // 1. ADMIN ZONE: Lock down EVERYTHING under /admin to the ADMIN role
-                        // This covers /admin/users, /admin/create-contest, etc.
+                        // 2. Public Endpoints (No Token Required)
+                        .requestMatchers("/signup/**", "/public/**", "/badge/**").permitAll()
+
+                        // 3. Role-based Endpoints
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                        // 2. CONTEST REGISTRATION: Any authenticated user can register
-                        // Specific enough to not conflict with GET requests
+                        // 4. Protected Endpoints (JWT Token Required)
                         .requestMatchers(HttpMethod.POST, "/contests/*/register").authenticated()
-
                         .requestMatchers(HttpMethod.POST, "/profile").authenticated()
-
-                        // 3. CONTEST VIEWING: Anyone (even not logged in) can view contests
                         .requestMatchers(HttpMethod.GET, "/contests/**").permitAll()
-
-                        // 4. USER PROFILE: Specific user endpoints
                         .requestMatchers("/user/**").authenticated()
 
-                        // 5. FALLBACK: Secure by default. Anything else requires authentication.
-                        // Change 'permitAll()' to 'authenticated()' for better security.
+                        // 5. Fallback
                         .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults());
+
+                // 6. IMPORTANT: Set Session to Stateless (No Sessions/Cookies)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // 7. REMOVED: .httpBasic() - This is what stops the Basic Auth popup!
+
+        // 8. Add JWT Filter before the standard UsernamePassword filter
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
-        // Still using NoOp since you're currently storing passwords as plain text
         return NoOpPasswordEncoder.getInstance();
     }
 }
