@@ -9,7 +9,8 @@ import java.util.List;
 public interface ProblemSubmissionRepository extends MongoRepository<ProblemSubmissionEntity, ObjectId> {
 
     List<ProblemSubmissionEntity> findByUsername(String username);
-    List<ProblemSubmissionEntity> findByUsernameAndProblemId(String username, ObjectId problemId);
+    List<ProblemSubmissionEntity> findByUsernameAndProblemIdOrderBySubmittedAtDesc(String username, ObjectId problemId);
     ProblemSubmissionEntity findBySubmissionId(ObjectId submissionId);
+    ProblemSubmissionEntity findBySlug(String slug);
 
 }

@@ -23,13 +23,10 @@ public class ProblemSubmissionController {
         return problemSubmissionServices.getAllSubmissionOfUser(username);
     }
 
-    @GetMapping("{submissionId}")
-    private ResponseEntity<?> getParticularSubmission(@PathVariable ObjectId submissionId){
-        return problemSubmissionServices.getSubmission(submissionId);
-    }
+
 
     @GetMapping("/problem/{problemId}")
-    private ResponseEntity<?> getAllSubmissionOfSameProblem(@PathVariable ObjectId problemId,Authentication authentication){
+    private ResponseEntity<?> getAllSubmissionOfSameProblemOfSameUser(@PathVariable ObjectId problemId,Authentication authentication){
         return problemSubmissionServices.getALlSubmissionOfSameProblemOfUser(authentication.getName(),problemId);
     }
 

@@ -3,11 +3,9 @@ package com.vikas.demo.controllers;
 
 import com.vikas.demo.entity.User;
 import com.vikas.demo.repository.UserRepository;
-import com.vikas.demo.service.ContestServices;
-import com.vikas.demo.service.UserProfileServices;
-import com.vikas.demo.service.UserServiceImpl;
-import com.vikas.demo.service.UserServices;
+import com.vikas.demo.service.*;
 import com.vikas.demo.utils.JwtUtils;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +14,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/public")
@@ -45,6 +46,9 @@ public class PublicController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ProblemSubmissionServices problemSubmissionServices;
+
 
 
     //health check function
@@ -68,6 +72,17 @@ public class PublicController {
         return userProfileServices.getUserProfile(user_name);
     }
 
+    //get any submission
+    @GetMapping("/submission/{submissionId}")
+    private ResponseEntity<?> getParticularSubmission(@PathVariable ObjectId submissionId){
+        return problemSubmissionServices.getSubmission(submissionId);
+    }
+
+    @GetMapping("/shared/{slug}")
+    public ResponseEntity<?> getSharedSubmission(@PathVariable String slug){
+        return problemSubmissionServices.getSubmissionBySlug(slug);
+    }
+
     //to login user
     @PostMapping("/login")
     private ResponseEntity<?> login(@RequestBody User user){
@@ -77,7 +92,11 @@ public class PublicController {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserName(),user.getPassword()));
             UserDetails userDetails=userServiceimpl.loadUserByUsername(user.getUserName());
             String jwt =jwtUtils.generateToken(userDetails.getUsername());
-            return new ResponseEntity<>(jwt,HttpStatus.OK);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", jwt);
+            response.put("user", userDetails);
+            return new ResponseEntity<>(response,HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>("User not Found",HttpStatus.INTERNAL_SERVER_ERROR);

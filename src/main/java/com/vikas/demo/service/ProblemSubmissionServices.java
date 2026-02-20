@@ -37,12 +37,9 @@ public class ProblemSubmissionServices {
 
     public ResponseEntity<?> getALlSubmissionOfSameProblemOfUser(String username,ObjectId problemid){
         try{
-            List<ProblemSubmissionEntity> problemSubmissionList=problemSubmissionRepository.findByUsernameAndProblemId(username,problemid);
-            if(problemSubmissionList.isEmpty()){
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }else{
-                return new ResponseEntity<>(problemSubmissionList,HttpStatus.OK);
-            }
+            List<ProblemSubmissionEntity> problemSubmissionList=problemSubmissionRepository.findByUsernameAndProblemIdOrderBySubmittedAtDesc(username,problemid);
+            return new ResponseEntity<>(problemSubmissionList,HttpStatus.OK);
+
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -57,6 +54,21 @@ public class ProblemSubmissionServices {
             if(entry!=null){
                 return new ResponseEntity<>(entry,HttpStatus.OK);
             }else{
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    public ResponseEntity<?> getSubmissionBySlug(String slug){
+        try{
+            ProblemSubmissionEntity entry = problemSubmissionRepository.findBySlug(slug);
+            if(entry != null){
+                return new ResponseEntity<>(entry, HttpStatus.OK);
+            } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
