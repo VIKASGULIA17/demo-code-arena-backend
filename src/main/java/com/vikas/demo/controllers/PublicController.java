@@ -1,10 +1,13 @@
 package com.vikas.demo.controllers;
 
 
+import com.vikas.demo.entity.Problem;
+import com.vikas.demo.entity.ProblemDetails;
 import com.vikas.demo.entity.User;
 import com.vikas.demo.repository.UserRepository;
 import com.vikas.demo.service.*;
 import com.vikas.demo.utils.JwtUtils;
+import io.swagger.v3.oas.annotations.Operation;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +19,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/public")
@@ -38,6 +43,12 @@ public class PublicController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private ProblemServices problemService;
+
+
+    @Autowired
+    private ProblemDetailsServices problemDetailsServices;
     //jwtutils
     @Autowired
     private JwtUtils jwtUtils;
@@ -82,6 +93,41 @@ public class PublicController {
     public ResponseEntity<?> getSharedSubmission(@PathVariable String slug){
         return problemSubmissionServices.getSubmissionBySlug(slug);
     }
+
+    @Operation(summary = "This is used to fetch all Problems")
+    @GetMapping("/problem/fetch")
+    public ResponseEntity<?> fetchAllProblems() {
+        try {
+            List<Problem> allProblems = problemService.fetchAllProblems();
+            if (allProblems.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(allProblems, HttpStatus.OK);
+        } catch(Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @Operation(summary = "Fetch heavy details (markdown, code) for a specific problem")
+    @GetMapping("/problem/{problemId}")
+    public ResponseEntity<?> getProblemDetails(@PathVariable String problemId) {
+        try {
+            ObjectId objId = new ObjectId(problemId);
+            Optional<ProblemDetails> details = problemDetailsServices.getDetailsByProblemId(objId);
+
+            if (details.isPresent()) {
+                return new ResponseEntity<>(details.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Details not found for this problem", HttpStatus.NOT_FOUND);
+            }
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Invalid Problem ID format", HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     //to login user
     @PostMapping("/login")

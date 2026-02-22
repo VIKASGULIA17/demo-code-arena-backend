@@ -21,24 +21,6 @@ public class ProblemDetailsController {
     @Autowired
     private ProblemDetailsServices problemDetailsServices;
 
-    @Operation(summary = "Fetch heavy details (markdown, code) for a specific problem")
-    @GetMapping("/{problemId}")
-    public ResponseEntity<?> getProblemDetails(@PathVariable String problemId) {
-        try {
-            ObjectId objId = new ObjectId(problemId);
-            Optional<ProblemDetails> details = problemDetailsServices.getDetailsByProblemId(objId);
-
-            if (details.isPresent()) {
-                return new ResponseEntity<>(details.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("Details not found for this problem", HttpStatus.NOT_FOUND);
-            }
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Invalid Problem ID format", HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
     @Operation(summary = "Add details for a single problem (Admin Only)")
     @PostMapping("/add")

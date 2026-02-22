@@ -53,17 +53,5 @@ public class ProblemController {
         }
     }
 
-    @Operation(summary = "This is used to fetch all Problems")
-    @GetMapping("/fetch")
-    public ResponseEntity<?> fetchAllProblems() {
-        try {
-            List<Problem> allProblems = problemService.fetchAllProblems();
-            if (allProblems.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            return new ResponseEntity<>(allProblems, HttpStatus.OK);
-        } catch(Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+
 }
