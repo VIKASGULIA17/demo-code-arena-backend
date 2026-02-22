@@ -35,6 +35,7 @@ public class SpringSecurity {
 
                         // 3. Role-based Endpoints
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+//                        .requestMatchers("/problem/**").hasRole("ADMIN")
 
                         // 4. Protected Endpoints (JWT Token Required)
                         .requestMatchers(HttpMethod.POST, "/contests/*/register").authenticated()

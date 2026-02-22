@@ -13,20 +13,24 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Document(collection = "problem")
 @Data
-public class Problem{
+public class Problem {
+
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
-    private ObjectId id;   //mongo unique id assigned auto by atlas
+    private ObjectId id;
 
     @Indexed(unique = true)
     private int sno;
+
     @NotNull
     private String title;
+
     private String slug;
-    List<String> topicTags = new ArrayList<>();
+
+    private List<String> topicTags = new ArrayList<>(); // Added 'private' here
+
     private boolean status;
     private String difficulty;
     private int acceptanceRate;
