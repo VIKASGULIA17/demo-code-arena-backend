@@ -7,6 +7,7 @@ import com.vikas.demo.repository.UserRepository;
 import com.vikas.demo.service.UserProfileServices;
 import com.vikas.demo.service.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +34,11 @@ public class UserProfileController {
     @PatchMapping("/update")
     private ResponseEntity<?> updateUserProfile(@RequestBody UserProfile incomingChanges,Authentication authentication){
         String username=authentication.getName();
+//        System.out.println(username);
         User user=userRepository.findByUserName(username);
 
         return userProfileServices.updateProfile(incomingChanges,user);
+//        return new ResponseEntity<>(username, HttpStatus.OK);
     }
+
 }

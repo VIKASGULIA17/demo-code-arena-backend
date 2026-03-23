@@ -22,6 +22,9 @@ public class UserProfile {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
+
+
+    private ObjectId userId;
 //
     @Indexed(unique = true)
     private String userName;

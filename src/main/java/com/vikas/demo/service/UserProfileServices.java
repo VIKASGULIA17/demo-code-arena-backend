@@ -34,7 +34,7 @@ public class UserProfileServices {
         try{
             if(user!=null){
 
-                UserProfile existingProfile=userProfileRepository.findByUserName(user.getUserName());
+                UserProfile existingProfile=userProfileRepository.findByUserId(user.getUserId());
 
                 if(existingProfile==null){
                     return createUserprofile(incomingChanges,user);
