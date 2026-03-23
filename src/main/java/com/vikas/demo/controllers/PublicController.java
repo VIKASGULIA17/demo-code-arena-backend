@@ -78,9 +78,9 @@ public class PublicController {
 
 
     //see user profile
-    @GetMapping("/profiles/{user_name}")
-    private ResponseEntity<?> getUserProfile(@PathVariable String user_name){
-        return userProfileServices.getUserProfile(user_name);
+    @GetMapping("/profiles/{userName}")
+    private ResponseEntity<?> getUserProfile(@PathVariable String userName){
+        return userProfileServices.getUserProfile(userName);
     }
 
     //get any submission
@@ -137,7 +137,8 @@ public class PublicController {
 
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserName(),user.getPassword()));
             UserDetails userDetails=userServiceimpl.loadUserByUsername(user.getUserName());
-            String jwt =jwtUtils.generateToken(userDetails.getUsername());
+            User loggedInUser = userRepository.findByUserName(user.getUserName());
+            String jwt =jwtUtils.generateToken(loggedInUser.getUserId().toString());
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", jwt);

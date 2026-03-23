@@ -26,19 +26,19 @@ public class UserProfileController {
 
     @PostMapping
     private ResponseEntity<?> createUserProfile(@RequestBody  UserProfile userProfile, Authentication authentication){
-        String username=authentication.getName();
-        User user=userRepository.findByUserName(username);
+        String userId=authentication.getName();
+        User user=userRepository.findByUserId(new org.bson.types.ObjectId(userId));
         return userProfileServices.createUserprofile(userProfile,user);
     }
 
     @PatchMapping("/update")
     private ResponseEntity<?> updateUserProfile(@RequestBody UserProfile incomingChanges,Authentication authentication){
-        String username=authentication.getName();
-//        System.out.println(username);
-        User user=userRepository.findByUserName(username);
+        String userId=authentication.getName();
+//        System.out.println(userId);
+        User user=userRepository.findByUserId(new org.bson.types.ObjectId(userId));
 
         return userProfileServices.updateProfile(incomingChanges,user);
-//        return new ResponseEntity<>(username, HttpStatus.OK);
+//        return new ResponseEntity<>(userId, HttpStatus.OK);
     }
 
 }

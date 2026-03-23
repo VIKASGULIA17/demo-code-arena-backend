@@ -58,6 +58,9 @@ public class UserProfileServices {
                     if (incomingChanges.getWebsite_link() != null) {
                         existingProfile.setWebsite_link(incomingChanges.getWebsite_link());
                     }
+                    if (incomingChanges.getUserName() != null) {
+                        existingProfile.setUserName(incomingChanges.getUserName());
+                    }
 
                     if (incomingChanges.getOverall_rank() != 0) {
                         existingProfile.setOverall_rank(incomingChanges.getOverall_rank());
@@ -73,12 +76,13 @@ public class UserProfileServices {
         }
     }
 
-    public ResponseEntity<?> getUserProfile(String username){
+    public ResponseEntity<?> getUserProfile(String userName){
         try{
-            User user=userRepository.findByUserName(username);
+
+            User user=userRepository.findByUserName(userName);
 
 
-            UserProfile userProfile=userProfileRepository.findByUserName(username);
+            UserProfile userProfile=userProfileRepository.findByUserName(userName);
 
 
             if(userProfile!=null){

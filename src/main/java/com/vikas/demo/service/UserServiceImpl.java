@@ -27,6 +27,18 @@ public class UserServiceImpl implements UserDetailsService {
         throw new UsernameNotFoundException("User not found: " + username);
     }
 
+    public UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
+        User user = userRepository.findByUserId(new org.bson.types.ObjectId(userId));
+        if (user != null) {
+            return org.springframework.security.core.userdetails.User.builder()
+                    .username(user.getUserId().toString())
+                    .password(user.getPassword())
+                    .roles(user.getRole().toArray(new String[0]))
+                    .build();
+        }
+        throw new UsernameNotFoundException("User not found with id: " + userId);
+    }
+
 
 
 }
