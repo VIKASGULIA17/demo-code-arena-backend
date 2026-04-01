@@ -39,12 +39,19 @@ public class ContestController {
     }
 
 
-    @PostMapping("/{contestName}/register")
-    public ResponseEntity<?> registerInContest(@PathVariable String contestName, Authentication authentication) {
+//    @PostMapping("/{contestName}/register")
+//    public ResponseEntity<?> registerInContest(@PathVariable String contestName, Authentication authentication) {
+//        // This is the standard Spring Security method
+//        String username = authentication.getName();
+//
+//        return contestServices.registerInContest(contestName,username);
+//    }
+    @GetMapping("/{contestId}/register")
+    public ResponseEntity<?> registerInContest(@PathVariable ObjectId contestId, Authentication authentication) {
         // This is the standard Spring Security method
-        String username = authentication.getName();
+        String userId = authentication.getName();
 
-        return contestServices.registerInContest(contestName,username);
+        return contestServices.registerInContest(contestId,userId);
     }
 
 }

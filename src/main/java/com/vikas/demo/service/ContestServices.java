@@ -10,9 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class ContestServices {
@@ -37,12 +35,32 @@ public class ContestServices {
 
 
 
-    public ResponseEntity<?> getAllContests(){
-        List<ContestEntity> contestList=contestRepository.findAll();
-        if(!contestList.isEmpty()){
-            return new ResponseEntity<>(contestList, HttpStatus.OK);
+    public ResponseEntity<Map<String,Object>> getAllContests(){
+
+
+        Map<String,Object> response=new HashMap<>();
+
+        try{
+            List<ContestEntity> contestList=contestRepository.findAll();
+        if(!contestList.isEmpty() && contestList!=null){
+            response.put("status",1);
+            response.put("Contests",contestList);
+
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        }else {
+            response.put("status", 0);
+            response.put("contests", new ArrayList<>());
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("status", 0);
+            response.put("contests", new ArrayList<>());
+            response.put("error", "An internal error occurred");
+
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     // just in case i need if for it
     public Optional<ContestEntity> getContestInfo(ObjectId contestId){
@@ -154,24 +172,69 @@ public class ContestServices {
         }
     }
 
-    public ResponseEntity<?> registerInContest(String contestName,String userName){
-        try{
-            User user=userRepository.findByUserName(userName);
-            ContestEntity contest=contestRepository.findByContestName(contestName);
+//    public ResponseEntity<?> registerInContest(String contestName,String userName){
+//        try{
+//            User user=userRepository.findByUserName(userName);
+//            ContestEntity contest=contestRepository.findByContestName(contestName);
+//
+//            if(user==null || contest==null){
+//                return new ResponseEntity<>("User or Contest Not found",HttpStatus.NOT_FOUND);
+//            }else{
+//                if (contest.getRegisteredUserIds() == null) {
+//                    contest.setRegisteredUserIds(new ArrayList<>());
+//                }
+//                if (user.getRegisteredContest() == null) {
+//                    user.setRegisteredContest(new ArrayList<>());
+//                }
+//                ObjectId userId=user.getUserId();
+//                ObjectId contestId=contest.getContestId();
+//                if(contest.getRegisteredUserIds().contains(userId)){
+//                    return new ResponseEntity<>("User already registered for the contest",HttpStatus.CONFLICT);
+//                }
+//
+//                contest.getRegisteredUserIds().add(userId);
+//                user.getRegisteredContest().add(contestId);
+//
+//                contestRepository.save(contest);
+//                userRepository.save(user);
+//
+//                return new ResponseEntity<>("Registered for contest",HttpStatus.OK);
+//
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return new ResponseEntity<>("yohohoh",HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
-            if(user==null || contest==null){
-                return new ResponseEntity<>("User or Contest Not found",HttpStatus.NOT_FOUND);
-            }else{
+    public ResponseEntity<Map<String,Object>> registerInContest(ObjectId contestId,String userIdString){
+        Map<String,Object> response=new HashMap<>();
+        try{
+            ObjectId userId=new ObjectId(userIdString);
+            User user=userRepository.findByUserId(userId);
+            ContestEntity contest=contestRepository.findByContestId(contestId);
+
+            if(user==null ){
+                response.put("status",0);
+                response.put("data","User Not found");
+                return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+            }
+            if( contest==null){
+                response.put("status",0);
+                response.put("data","Contest Not found");
+                return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+            }
+            else{
                 if (contest.getRegisteredUserIds() == null) {
                     contest.setRegisteredUserIds(new ArrayList<>());
                 }
                 if (user.getRegisteredContest() == null) {
                     user.setRegisteredContest(new ArrayList<>());
                 }
-                ObjectId userId=user.getUserId();
-                ObjectId contestId=contest.getContestId();
                 if(contest.getRegisteredUserIds().contains(userId)){
-                    return new ResponseEntity<>("User already registered for the contest",HttpStatus.CONFLICT);
+                    response.put("status",0);
+                    response.put("data","User already registered for the contest");
+                    return new ResponseEntity<>(response,HttpStatus.CONFLICT);
                 }
 
                 contest.getRegisteredUserIds().add(userId);
@@ -180,15 +243,19 @@ public class ContestServices {
                 contestRepository.save(contest);
                 userRepository.save(user);
 
-                return new ResponseEntity<>("Registered for contest",HttpStatus.OK);
+                response.put("status",1);
+                response.put("data","Registered Successfully for the contest");
+
+                return new ResponseEntity<>(response,HttpStatus.OK);
 
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>("yohohoh",HttpStatus.INTERNAL_SERVER_ERROR);
+            response.put("status",0);
+            response.put("data","Server error occured");
+            return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
 
 }
