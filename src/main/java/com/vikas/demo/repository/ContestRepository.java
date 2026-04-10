@@ -9,5 +9,5 @@ public interface ContestRepository extends MongoRepository<ContestEntity, Object
 
     ContestEntity findByContestId(ObjectId contestId);
 
-    void deleteByContestName(String contestName);
+    void deleteByContestId(ObjectId contestId);
 }

@@ -5,6 +5,9 @@ import com.vikas.demo.entity.User;
 import com.vikas.demo.repository.ContestRepository;
 import com.vikas.demo.repository.UserRepository;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactoryFriend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,9 @@ import java.util.*;
 
 @Component
 public class ContestServices {
+
+
+    private static final  Logger logger= LoggerFactory.getLogger(ContestServices.class);
 
     @Autowired
     private ContestRepository contestRepository;
@@ -27,7 +33,8 @@ public class ContestServices {
             return new ResponseEntity<>(contestEntity, HttpStatus.CREATED);
         }
         catch( Exception e){
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("There was some Problem with creating contest ");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -50,11 +57,13 @@ public class ContestServices {
         }else {
             response.put("status", 0);
             response.put("contests", new ArrayList<>());
+            logger.info("There are no contest ");
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("There is some error with fetching contests");
             response.put("status", 0);
             response.put("contests", new ArrayList<>());
             response.put("error", "An internal error occurred");
@@ -80,20 +89,21 @@ public class ContestServices {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("There was some Problem with fetching this contest Info");
+//            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public ResponseEntity<?> deleteContestByName(String contestName){
+    public ResponseEntity<?> deleteContestByName(ObjectId contestId){
         try{
-            ContestEntity contestInfo=findByContestName(contestName);
+            ContestEntity contestInfo=contestRepository.findByContestId(contestId);
             if(contestInfo!=null){
-                contestRepository.deleteByContestName(contestName);
+                contestRepository.deleteByContestId(contestId);
 
-                return new ResponseEntity<>("Contest " + contestName +" got delelted",HttpStatus.GONE);
+                return new ResponseEntity<>("Contest " + contestId +" got delelted",HttpStatus.GONE);
             }else{
-                return new ResponseEntity<>("Contest with name: "+contestName +" Not found in the Database",HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Contest with name: "+contestId +" Not found in the Database",HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,9 +111,17 @@ public class ContestServices {
         }
     }
 
-    public ContestEntity findByContestName(String contestName){
-        return contestRepository.findByContestName(contestName);
-    }
+//    public ResponseEntity<?> findByContestId(ObjectId contestId){
+//        try{
+//            ContestEntity contestInfo=findByContestId()
+//        }
+//    }
+
+
+
+//    public ContestEntity findByContestName(String contestName){
+//        return contestRepository.findByContestName(contestName);
+//    }
 
 
     public ResponseEntity<?> modifyContestById(ObjectId contestId,ContestEntity newContestInfo){
@@ -134,43 +152,44 @@ public class ContestServices {
         contestRepository.save(oldContestInfo);
         return new ResponseEntity<>(oldContestInfo, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("Problem with modifying contest ");
             return new ResponseEntity<>("Contest Info Updated!",HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public ResponseEntity<?> modifyContestByName(String contestName,ContestEntity newContestInfo){
-        ContestEntity oldContestInfo = contestRepository.findByContestName(contestName);
-        try{
-
-
-            if (oldContestInfo == null) {
-                return new ResponseEntity<>("Contest not found", HttpStatus.NOT_FOUND);
-            }
-
-            if (!newContestInfo.getContestName().isEmpty()) {
-                oldContestInfo.setContestName(newContestInfo.getContestName());
-            }
-
-            if (!newContestInfo.getContestDescription().isEmpty()) {
-                oldContestInfo.setContestDescription(newContestInfo.getContestDescription());
-            }
-
-            if (newContestInfo.getDuration() != 0) {
-                oldContestInfo.setDuration(newContestInfo.getDuration());
-            }
-
-            if (newContestInfo.getStartTime() != null) {
-                oldContestInfo.setStartTime(newContestInfo.getStartTime());
-            }
-
-            contestRepository.save(oldContestInfo);
-            return new ResponseEntity<>(oldContestInfo, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("Contest Info Updated!",HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    public ResponseEntity<?> modifyContestByName(String contestName,ContestEntity newContestInfo){
+//        ContestEntity oldContestInfo = contestRepository.findByContestName(contestName);
+//        try{
+//
+//
+//            if (oldContestInfo == null) {
+//                return new ResponseEntity<>("Contest not found", HttpStatus.NOT_FOUND);
+//            }
+//
+//            if (!newContestInfo.getContestName().isEmpty()) {
+//                oldContestInfo.setContestName(newContestInfo.getContestName());
+//            }
+//
+//            if (!newContestInfo.getContestDescription().isEmpty()) {
+//                oldContestInfo.setContestDescription(newContestInfo.getContestDescription());
+//            }
+//
+//            if (newContestInfo.getDuration() != 0) {
+//                oldContestInfo.setDuration(newContestInfo.getDuration());
+//            }
+//
+//            if (newContestInfo.getStartTime() != null) {
+//                oldContestInfo.setStartTime(newContestInfo.getStartTime());
+//            }
+//
+//            contestRepository.save(oldContestInfo);
+//            return new ResponseEntity<>(oldContestInfo, HttpStatus.OK);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return new ResponseEntity<>("Contest Info Updated!",HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
 //    public ResponseEntity<?> registerInContest(String contestName,String userName){
 //        try{
@@ -250,7 +269,8 @@ public class ContestServices {
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("problem in contest registration");
             response.put("status",0);
             response.put("data","Server error occured");
             return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);

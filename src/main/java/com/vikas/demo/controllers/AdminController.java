@@ -5,6 +5,7 @@ import com.vikas.demo.entity.ContestEntity;
 import com.vikas.demo.entity.User;
 import com.vikas.demo.service.ContestServices;
 import com.vikas.demo.service.UserServices;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,15 +36,16 @@ public class AdminController {
 
 
     //delete a contest
-    @DeleteMapping("/deleteContest/{contestName}")
-    private ResponseEntity<?> deleteContest(@PathVariable String contestName){
-        return contestServices.deleteContestByName(contestName);
+    @DeleteMapping("/deleteContest/{contestId}")
+    private ResponseEntity<?> deleteContest(@PathVariable ObjectId contestId){
+        return contestServices.deleteContestByName(contestId);
     }
 
 
     //edit a contest
-    @PutMapping("/modifyContest/{contestName}")
-    private ResponseEntity<?> modifyContest(@PathVariable String contestName,@RequestBody ContestEntity contestEntity){
-        return contestServices.modifyContestByName(contestName,contestEntity);
+    @PutMapping("/modifyContest/{contestId}")
+    private ResponseEntity<?> modifyContest(@PathVariable ObjectId contestId,@RequestBody ContestEntity contestEntity){
+        return contestServices.modifyContestById(contestId,contestEntity);
     }
 }
+g
