@@ -48,4 +48,3 @@ public class AdminController {
         return contestServices.modifyContestById(contestId,contestEntity);
     }
 }
-g
