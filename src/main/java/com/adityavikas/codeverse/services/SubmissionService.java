@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -32,15 +31,6 @@ public class SubmissionService {
         catch(Exception e){
             logger.error("submissions not retrieved");
             return null;
-        }
-    }
-
-    public List<String> getAllAcceptedProblemSubmissionOfUser(String username){
-        try{
-            return submissionRepository.findDistinctProblemIdByUsernameAndStatus(username,"ACCEPTED");
-        } catch (Exception e) {
-            logger.error("Failed to fetch unique Problem id of user with accepted status");
-            return new ArrayList<>();
         }
     }
 

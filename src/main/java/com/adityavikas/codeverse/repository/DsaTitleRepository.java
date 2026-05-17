@@ -1,8 +1,8 @@
 package com.adityavikas.codeverse.repository;
 
-import com.adityavikas.codeverse.entity.DsaTemplate;
+import com.adityavikas.codeverse.entity.DsaTitle;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface DsaTemplateRepository extends MongoRepository<DsaTemplate, ObjectId> {
+public interface DsaTitleRepository extends MongoRepository<DsaTitle, ObjectId> {
 }

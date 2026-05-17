@@ -1,13 +1,17 @@
 package com.adityavikas.codeverse.services;
 
+import com.adityavikas.codeverse.dto.ContestProblemDTO;
 import com.adityavikas.codeverse.dto.ProblemDTO;
 import com.adityavikas.codeverse.dto.TestcaseDTO;
+import com.adityavikas.codeverse.entity.Contest;
 import com.adityavikas.codeverse.entity.Problem;
 import com.adityavikas.codeverse.entity.ProblemDetails;
 import com.adityavikas.codeverse.entity.Testcase;
+import com.adityavikas.codeverse.repository.ContestRepository;
 import com.adityavikas.codeverse.repository.ProblemRepository;
-import lombok.extern.slf4j.Slf4j;
+import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,19 +24,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+@AllArgsConstructor
 @Service
 public class ProblemService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProblemService.class);
 
-    @Autowired
-    private ProblemRepository problemRepository;
 
-    @Autowired
-    private ProblemDetailService problemDetailService;
+    private final ProblemRepository problemRepository;
 
-    @Autowired
-    private TestcaseService testcaseService;
+    private final ModelMapper modelMapper;
+
+    private final ProblemDetailService problemDetailService;
+
+    private final TestcaseService testcaseService;
+
+    private final ContestRepository contestRepository;
 
     public Boolean saveProblem(Problem problem){
         try{
@@ -110,6 +117,13 @@ public class ProblemService {
             problem.setInputType(problemDTO.getInputType());
             problem.setStatus(problemDTO.isStatus());
             problem.setAcceptanceRate(problemDTO.getAcceptanceRate());
+            //handling newly added fields
+            problem.setContestId(null);
+            problem.setIsContestProblem(false);
+            problem.setProblemOrder(0);//0 or null ,will decide later
+            problem.setIsVisible(true);
+
+            //as followed
 
             Boolean isProblemSaved = saveProblem(problem);
 
@@ -148,4 +162,38 @@ public class ProblemService {
         }
     }
 
+    public boolean addContestProblem(ObjectId contestId,ContestProblemDTO contestProblemDTO) {
+
+        try {
+            Contest contest = contestRepository.findById(contestId).orElse(null);
+            if (contest == null) return false;
+
+            Problem problem = modelMapper.map(contestProblemDTO, Problem.class);
+            problem.setContestId(contestId);
+            problem.setIsContestProblem(true);
+            problem.setIsVisible(false);
+//            problem.setCreatedAt(LocalDateTime.now());/
+
+            Boolean isProblemSaved = saveProblem(problem);
+            ObjectId problemId = getProblemIdBySlugName(contestProblemDTO.getSlug());
+
+            boolean isAllTestcaseSaved = true;
+            for (TestcaseDTO testcaseDTO : contestProblemDTO.getTestCases()) {
+                Testcase testcase = modelMapper.map(testcaseDTO, Testcase.class);
+                boolean isTestcaseSaved = testcaseService.addTestcase(testcase, problemId.toString());
+                isAllTestcaseSaved = isAllTestcaseSaved && isTestcaseSaved;
+            }
+
+            ProblemDetails problemDetails = modelMapper.map(contestProblemDTO, ProblemDetails.class);
+            problemDetails.setProblemId(problemId);
+
+            boolean isProblemDetailsSaved = problemDetailService.problemDetailsAdded(problemDetails);
+            return isProblemDetailsSaved && isAllTestcaseSaved && isProblemSaved;
+        } catch (Exception e) {
+            logger.error("Problem not added completely", e);
+            return false;
+        }
+
+
+    }
 }

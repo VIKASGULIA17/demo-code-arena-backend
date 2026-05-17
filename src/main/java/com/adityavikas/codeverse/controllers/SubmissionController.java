@@ -71,20 +71,6 @@ public class SubmissionController {
         return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
     }
 
-    @Operation(summary = "This API endpoint is used to fetch unique problem id of user with accepted status")
-    @GetMapping("/getStatusOfUserProblems")
-    public ResponseEntity<?> getAllUniqueProblemIdWithAcceptedStatus(HttpServletRequest request){
-        String authorizationHeader = request.getHeader("Authorization");
-        String username = middlewares.getUserNameByJwt(authorizationHeader);
-        List<String> allSubmissions = submissionService.getAllAcceptedProblemSubmissionOfUser(username);
-        if(!allSubmissions.isEmpty()){
-            return new ResponseEntity<>(allSubmissions,HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
-    }
-
-
-
     @Operation(summary = "This API Endpoint is used to access the submission through slug")
     @GetMapping("/getSharedSubmission/{slug}")
     public ResponseEntity<?> getSharedSubmission(@PathVariable String slug){

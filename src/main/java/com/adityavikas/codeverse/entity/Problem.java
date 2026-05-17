@@ -38,4 +38,10 @@ public class Problem {
     private String functionName;
     private LocalDateTime created_at;
 
+    //new fields
+    private Boolean isContestProblem=false; //false by default
+    private Boolean isVisible; //it will be turned to true after the contest end + when we are generating leader board
+    private ObjectId contestId; //for reference
+    private int problemOrder=0; // it is specifically for order of contest
+
 }

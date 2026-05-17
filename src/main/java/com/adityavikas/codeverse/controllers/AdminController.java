@@ -2,6 +2,7 @@ package com.adityavikas.codeverse.controllers;
 
 import com.adityavikas.codeverse.dto.AdminDTO;
 import com.adityavikas.codeverse.dto.AllUserAPIResponseDTO;
+import com.adityavikas.codeverse.dto.ContestDTO;
 import com.adityavikas.codeverse.entity.Contest;
 import com.adityavikas.codeverse.entity.User;
 import com.adityavikas.codeverse.middleware.Middlewares;
@@ -85,11 +86,11 @@ public class AdminController {
 
     @Operation(summary = "This endpoint is used to add a contest for users")
     @PostMapping("/createContest")
-    public ResponseEntity<?> addNewContest(@RequestBody Contest contest){
+    public ResponseEntity<?> addNewContest(@RequestBody ContestDTO contestDTO){
         Map<String,Integer> response = new HashMap<>();
         response.put("status",0);
         try{
-            boolean isAdded = contestService.addContest(contest);
+            boolean isAdded = contestService.addContest(contestDTO);
             if(isAdded){
                 response.put("status",1);
                 return new ResponseEntity<>(response, HttpStatus.OK);

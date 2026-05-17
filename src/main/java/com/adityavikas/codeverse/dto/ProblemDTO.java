@@ -21,7 +21,7 @@ public class ProblemDTO {
     @NotNull
     private String title;
     private String slug;
-    String topicTags;
+    String topicTags; //will ask aditya about it
     private boolean status = false;    // be default = false
     private String difficulty;
     private int acceptanceRate = 0;       // depend on system I will change it to double later on

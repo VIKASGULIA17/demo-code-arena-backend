@@ -1,41 +1,46 @@
 package com.adityavikas.codeverse.services;
 
+import com.adityavikas.codeverse.dto.ContestDTO;
 import com.adityavikas.codeverse.entity.Contest;
 import com.adityavikas.codeverse.entity.User;
 import com.adityavikas.codeverse.middleware.Middlewares;
 import com.adityavikas.codeverse.repository.ContestRepository;
 import com.adityavikas.codeverse.repository.UserRepository;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class ContestService {
 
-    @Autowired
-    private ContestRepository contestRepository;
+    private final ContestRepository contestRepository;
 
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private Middlewares middlewares;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserService userService;
+    private final Middlewares middlewares;
+    private final UserService userService;
+
+    private final ModelMapper modelMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(ContestService.class);
 
-    public boolean addContest(Contest contest){
+    public boolean addContest(ContestDTO contestDTO){
         try{
+            Contest contest = modelMapper.map(contestDTO, Contest.class);
+            contest.setEndTime(contestDTO.getStartTime().plusMinutes(contestDTO.getDuration()));
+            contest.setLeaderBoardGenerated(false);
+            contest.setCreatedAt(LocalDateTime.now());
             contestRepository.save(contest);
         } catch (Exception e) {
             log.error("Contest not added",e);
@@ -55,20 +60,6 @@ public class ContestService {
         }
     }
 
-    public boolean deleteContestByContestName(String contestName){
-        try{
-            Contest contest = contestRepository.findContestByContestName(contestName);
-            if(contest!=null){
-                contestRepository.deleteContestByContestName(contestName);
-                return true;
-            }
-            return false;
-        }
-        catch(Exception e){
-            log.error("Contest not deleted by contest name",e);
-            return false;
-        }
-    }
 
     public boolean updateContest(ObjectId contestId,Contest contest){
         try{
@@ -137,5 +128,7 @@ public class ContestService {
             return false;
         }
     }
+
+
 
 }
