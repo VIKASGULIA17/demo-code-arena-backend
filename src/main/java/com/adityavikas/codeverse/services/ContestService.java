@@ -1,6 +1,7 @@
 package com.adityavikas.codeverse.services;
 
 import com.adityavikas.codeverse.dto.ContestDTO;
+import com.adityavikas.codeverse.dto.EditorAccessDTO;
 import com.adityavikas.codeverse.entity.Contest;
 import com.adityavikas.codeverse.entity.User;
 import com.adityavikas.codeverse.middleware.Middlewares;
@@ -130,5 +131,23 @@ public class ContestService {
     }
 
 
+    public Boolean giveAccessToEditor(ObjectId contestId, EditorAccessDTO editorAccessDTO) {
+        try {
+            ObjectId userId=editorAccessDTO.userId();
+            User user = userRepository.findById(userId).orElse(null);
+            Contest contest = contestRepository.findById(contestId).orElse(null);
+            if (user == null || contest == null) return false;
 
+            Boolean isEditor = contestRepository.existsByContestIdAndEditorAccessIdContaining(contestId, userId);
+            if (!isEditor) {
+                contest.getEditorAccessId().add(userId);
+                contestRepository.save(contest);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Something wrong happened while giving access to editor", e);
+            return false;
+        }
+    }
 }

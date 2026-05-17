@@ -3,6 +3,7 @@ package com.adityavikas.codeverse.controllers;
 import com.adityavikas.codeverse.dto.AdminDTO;
 import com.adityavikas.codeverse.dto.AllUserAPIResponseDTO;
 import com.adityavikas.codeverse.dto.ContestDTO;
+import com.adityavikas.codeverse.dto.EditorAccessDTO;
 import com.adityavikas.codeverse.entity.Contest;
 import com.adityavikas.codeverse.entity.User;
 import com.adityavikas.codeverse.middleware.Middlewares;
@@ -101,22 +102,7 @@ public class AdminController {
         }
     }
 
-    @Operation(summary = "This endpoint is used to delete a contest by contestname")
-    @DeleteMapping("/deleteContestByContestName/{contestName}")
-    public ResponseEntity<?> deleteContestByContestName(@PathVariable String contestName){
-        Map<String,Integer> response = new HashMap<>();
-        response.put("status",0);
-        try{
-            boolean isDeleted = contestService.deleteContestByContestName(contestName);
-            if(isDeleted){
-                response.put("status",1);
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            }
-            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 
     @Operation(summary = "This endpoint is used to modify the contest by contestname")
     @PutMapping("/updateContest/{contestId}")
@@ -172,4 +158,25 @@ public class AdminController {
             return new ResponseEntity<>(returnResponse,HttpStatus.BAD_REQUEST);
         }
     }
+
+    @Operation(summary = "This API Endpoint is used to provide editor access for certain contest to a intern/editor")
+    @PostMapping("giveContestAccess/{contestId}")
+    public ResponseEntity<?> giveEditorAccessToEditor(HttpServletRequest request, @PathVariable ObjectId contestId, @RequestBody EditorAccessDTO editorAccessDTO){
+
+        Map<String,Integer> returnResponse = new HashMap<>();
+        returnResponse.put("status",0);
+
+        try{
+            Boolean isGivenAccess=contestService.giveAccessToEditor(contestId,editorAccessDTO);
+            if(isGivenAccess){
+                returnResponse.put("status",1);
+                return new ResponseEntity<>(returnResponse,HttpStatus.OK);
+            }
+            return new ResponseEntity<>(returnResponse,HttpStatus.BAD_REQUEST);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(returnResponse,HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }

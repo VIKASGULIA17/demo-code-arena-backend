@@ -10,4 +10,6 @@ public interface ContestRepository extends MongoRepository<Contest, ObjectId> {
     Contest findContestByContestName(String contestName);
 
     Boolean findByContestId(String contestId);
+
+    Boolean existsByContestIdAndEditorAccessIdContaining(ObjectId contestId, ObjectId userId);
 }

@@ -172,7 +172,6 @@ public class ProblemService {
             problem.setContestId(contestId);
             problem.setIsContestProblem(true);
             problem.setIsVisible(false);
-//            problem.setCreatedAt(LocalDateTime.now());/
 
             Boolean isProblemSaved = saveProblem(problem);
             ObjectId problemId = getProblemIdBySlugName(contestProblemDTO.getSlug());
