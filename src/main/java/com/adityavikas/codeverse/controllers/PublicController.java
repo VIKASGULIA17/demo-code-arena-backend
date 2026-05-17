@@ -260,5 +260,19 @@ public class PublicController {
             return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
         }
     }
+    @Operation(summary = "This is used to fetch all contest problem")
+    @GetMapping("/fetchContestProblem/{contestId}")
+    private ResponseEntity<?> fetchAllContestProblem(@PathVariable ObjectId contestId){
+        try{
+            List<ContestProblemResponseDTO> allProblems = problemService.getContestProblems(contestId);
+            if(allProblems.isEmpty()){
+                return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(allProblems,HttpStatus.OK);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }

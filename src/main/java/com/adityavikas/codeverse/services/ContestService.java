@@ -61,7 +61,6 @@ public class ContestService {
         }
     }
 
-
     public boolean updateContest(ObjectId contestId,Contest contest){
         try{
             Contest oldContest = contestRepository.findById(contestId).orElse(null);

@@ -1,6 +1,7 @@
 package com.adityavikas.codeverse.services;
 
 import com.adityavikas.codeverse.dto.ContestProblemDTO;
+import com.adityavikas.codeverse.dto.ContestProblemResponseDTO;
 import com.adityavikas.codeverse.dto.ProblemDTO;
 import com.adityavikas.codeverse.dto.TestcaseDTO;
 import com.adityavikas.codeverse.entity.Contest;
@@ -8,21 +9,22 @@ import com.adityavikas.codeverse.entity.Problem;
 import com.adityavikas.codeverse.entity.ProblemDetails;
 import com.adityavikas.codeverse.entity.Testcase;
 import com.adityavikas.codeverse.repository.ContestRepository;
+import com.adityavikas.codeverse.repository.ProblemDetailRepository;
 import com.adityavikas.codeverse.repository.ProblemRepository;
+import com.adityavikas.codeverse.repository.TestcaseRepository;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -35,11 +37,15 @@ public class ProblemService {
 
     private final ModelMapper modelMapper;
 
+    private final TestcaseRepository testcaseRepository;
+
     private final ProblemDetailService problemDetailService;
 
     private final TestcaseService testcaseService;
 
     private final ContestRepository contestRepository;
+
+    private final ProblemDetailRepository problemDetailRepository;
 
     public Boolean saveProblem(Problem problem){
         try{
@@ -194,5 +200,36 @@ public class ProblemService {
         }
 
 
+    }
+
+    public List<ContestProblemResponseDTO> getContestProblems(ObjectId contestId) {
+        try {
+            List<Problem> problems = problemRepository.findByContestId(contestId);
+            List<ContestProblemResponseDTO> response = new ArrayList<>();
+
+            for (Problem problem : problems) {
+                ContestProblemResponseDTO dto = modelMapper.map(problem, ContestProblemResponseDTO.class);
+
+                ProblemDetails details = problemDetailRepository.findByProblemId(problem.getId());
+                if (details != null) {
+                    dto.setDescription(details.getDescription());
+                    dto.setTemplates(details.getTemplates());
+                }
+
+                List<Testcase> testcases = testcaseRepository.findAllByProblemId(problem.getId());
+
+                dto.setTestCases(testcases);
+
+                response.add(dto);
+            }
+            //providing result in sorted order based on contest order
+            return response.stream()
+                    .sorted(Comparator.comparingInt  (ContestProblemResponseDTO::getProblemOrder))
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            logger.error("Error fetching contest problems", e);
+            return List.of();
+        }
     }
 }
