@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 public class ContestDTO {
-    @NonNull
     private String contestName;
+
     private String contestDescription;
     private LocalDateTime startTime;
     private int duration;

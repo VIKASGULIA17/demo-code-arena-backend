@@ -1,9 +1,6 @@
 package com.adityavikas.codeverse.controllers;
 
-import com.adityavikas.codeverse.dto.AdminDTO;
-import com.adityavikas.codeverse.dto.AllUserAPIResponseDTO;
-import com.adityavikas.codeverse.dto.ContestDTO;
-import com.adityavikas.codeverse.dto.EditorAccessDTO;
+import com.adityavikas.codeverse.dto.*;
 import com.adityavikas.codeverse.entity.Contest;
 import com.adityavikas.codeverse.entity.User;
 import com.adityavikas.codeverse.middleware.Middlewares;
@@ -13,6 +10,7 @@ import com.adityavikas.codeverse.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/admin")
 @Tag(name="All Admin API's",description = "this is the admin controller where only admin can do the necessary change to our codeverse system application not used is allowed.")
@@ -102,15 +101,16 @@ public class AdminController {
         }
     }
 
+    @Operation(summary = "This endpoint is used to modify the contest by contest name")
+    @PutMapping("/contest/update/{contestId}")
+    public ResponseEntity<?> updateContest(HttpServletRequest request,@PathVariable String contestId,@RequestBody ContestDTO contestDTO){
 
+        User user = middlewares.getUserByJwt(request.getHeader("Authorization"));
 
-    @Operation(summary = "This endpoint is used to modify the contest by contestname")
-    @PutMapping("/updateContest/{contestId}")
-    public ResponseEntity<?> updateContest(@PathVariable String contestId,@RequestBody Contest contest){
         Map<String,Integer> response = new HashMap<>();
         response.put("status",0);
         try{
-            boolean isUpdated = contestService.updateContest(new ObjectId(contestId),contest);
+            boolean isUpdated = contestService.updateContest(user,new ObjectId(contestId),contestDTO);
             if(isUpdated){
                 response.put("status",1);
                 return new ResponseEntity<>(response,HttpStatus.OK);
@@ -125,12 +125,14 @@ public class AdminController {
     }
 
     @Operation(summary = "This API Endpoint is used to delete the contest based on contest id by the admin")
-    @DeleteMapping("/deleteContestByContestId/{contestId}")
-    public ResponseEntity<?> deleteContestByContestId(@PathVariable String contestId){
+    @DeleteMapping("/contest/delete/{contestId}")
+    public ResponseEntity<?> deleteContestByContestId(HttpServletRequest request, @PathVariable String contestId, @RequestBody ContestDeleteDTO contestDeleteDTO){
+        User user = middlewares.getUserByJwt(request.getHeader("Authorization"));
+
         ObjectId contestObjectId = new ObjectId(contestId);
         Map<String,Integer> returnResponse = new HashMap<>();
         returnResponse.put("status",0);
-        boolean isDeleted = contestService.deleteContest(contestObjectId);
+        boolean isDeleted = contestService.deleteContest(user,contestObjectId,contestDeleteDTO);
         if(isDeleted){
             returnResponse.put("status",1);
             return new ResponseEntity<>(returnResponse,HttpStatus.OK);

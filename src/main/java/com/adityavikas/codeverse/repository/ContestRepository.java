@@ -6,10 +6,10 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ContestRepository extends MongoRepository<Contest, ObjectId> {
 
-    void deleteContestByContestName(String contestName);
-    Contest findContestByContestName(String contestName);
+    Contest findContestByContestId(String contestName);
 
     Boolean findByContestId(String contestId);
 
     Boolean existsByContestIdAndEditorAccessIdContaining(ObjectId contestId, ObjectId userId);
+
 }

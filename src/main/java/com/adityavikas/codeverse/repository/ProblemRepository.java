@@ -10,4 +10,5 @@ public interface ProblemRepository extends MongoRepository<Problem, ObjectId> {
 
     Problem findBySlug(String slug);
     List<Problem> findByContestId(ObjectId contestId);
+
 }

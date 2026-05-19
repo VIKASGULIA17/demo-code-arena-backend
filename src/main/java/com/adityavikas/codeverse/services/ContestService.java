@@ -1,11 +1,14 @@
 package com.adityavikas.codeverse.services;
 
 import com.adityavikas.codeverse.dto.ContestDTO;
+import com.adityavikas.codeverse.dto.ContestDeleteDTO;
 import com.adityavikas.codeverse.dto.EditorAccessDTO;
 import com.adityavikas.codeverse.entity.Contest;
+import com.adityavikas.codeverse.entity.Problem;
 import com.adityavikas.codeverse.entity.User;
 import com.adityavikas.codeverse.middleware.Middlewares;
 import com.adityavikas.codeverse.repository.ContestRepository;
+import com.adityavikas.codeverse.repository.ProblemRepository;
 import com.adityavikas.codeverse.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -26,10 +31,12 @@ public class ContestService {
 
     private final ContestRepository contestRepository;
 
+    private final ProblemRepository problemRepository;
 
     private final UserRepository userRepository;
 
     private final Middlewares middlewares;
+
     private final UserService userService;
 
     private final ModelMapper modelMapper;
@@ -50,9 +57,39 @@ public class ContestService {
         return true;
     }
 
-    public boolean deleteContest(ObjectId id){
+    public boolean deleteContest(User user, ObjectId contestId, ContestDeleteDTO contestDeleteDTO){
         try{
-            contestRepository.deleteById(id);
+            boolean isAdmin=user.getRoles().contains("ADMIN");
+            Boolean isEditor=contestRepository.existsByContestIdAndEditorAccessIdContaining(contestId,user.getUserId());
+
+            Contest contest = contestRepository.findById(contestId).orElse(null);
+
+            if(!isAdmin && !isEditor){
+                return false; // doesnt have permission to delete the contest
+            }
+
+            if(contest==null){
+                return false;
+            }
+
+            if(contest.getStartTime().isBefore(LocalDateTime.now())){
+                //contest start date has passed
+                return false; //cant delete passed contest
+            }
+
+
+
+
+            if(contestDeleteDTO.getShouldDeleteContestProblemToo()){
+                //if true then delete problems too
+                List<ObjectId> problemIds = problemRepository.findByContestId(contestId)
+                        .stream()
+                        .map(Problem::getId)
+                        .toList();
+                problemRepository.deleteAllById(problemIds);
+            }
+
+            contestRepository.deleteById(contestId);
             return true;
         }
         catch (Exception e){
@@ -61,26 +98,42 @@ public class ContestService {
         }
     }
 
-    public boolean updateContest(ObjectId contestId,Contest contest){
+    public boolean updateContest(User user,ObjectId contestId,ContestDTO contest){
         try{
             Contest oldContest = contestRepository.findById(contestId).orElse(null);
-            if(oldContest!=null){
-                if(!contest.getContestName().isEmpty()){
-                    oldContest.setContestName(contest.getContestName());
-                }
-                if(!contest.getContestDescription().isEmpty()){
-                    oldContest.setContestDescription(contest.getContestDescription());
-                }
-                oldContest.setDuration(contest.getDuration());
-                oldContest.setStartTime(contest.getStartTime());
-                contestRepository.save(oldContest);
-                return true;
+
+            if(oldContest==null)return false;
+
+            boolean isAdmin=user.getRoles().contains("ADMIN");
+            Boolean isEditor=contestRepository.existsByContestIdAndEditorAccessIdContaining(contestId,user.getUserId());
+
+            if(!isAdmin && !isEditor){
+                return false;
             }
+
+            if (contest.getContestName() != null && !contest.getContestName().isEmpty()) {
+                oldContest.setContestName(contest.getContestName());
+            }
+            if (contest.getContestDescription() != null && !contest.getContestDescription().isEmpty()) {
+                oldContest.setContestDescription(contest.getContestDescription());
+            }
+
+            if (contest.getStartTime() != null) {
+                oldContest.setStartTime(contest.getStartTime());
+            }
+            if (contest.getDuration() != 0) {
+                oldContest.setDuration(contest.getDuration());
+            }
+            oldContest.setEndTime(oldContest.getStartTime().plusMinutes(oldContest.getDuration()));
+
+            contestRepository.save(oldContest);
+            return true;
+
+
         } catch (Exception e) {
             log.error("contest not updated",e);
             return false;
         }
-        return false;
     }
 
     @Transactional
@@ -132,15 +185,21 @@ public class ContestService {
 
     public Boolean giveAccessToEditor(ObjectId contestId, EditorAccessDTO editorAccessDTO) {
         try {
-            ObjectId userId=editorAccessDTO.userId();
+            ObjectId userId = editorAccessDTO.userId();
             User user = userRepository.findById(userId).orElse(null);
             Contest contest = contestRepository.findById(contestId).orElse(null);
+
             if (user == null || contest == null) return false;
 
             Boolean isEditor = contestRepository.existsByContestIdAndEditorAccessIdContaining(contestId, userId);
             if (!isEditor) {
                 contest.getEditorAccessId().add(userId);
                 contestRepository.save(contest);
+
+                if (!user.getRoles().contains("EDITOR")) {
+                    user.getRoles().add("EDITOR");
+                    userRepository.save(user);
+                }
                 return true;
             }
             return false;
