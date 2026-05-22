@@ -7,9 +7,7 @@ import com.adityavikas.codeverse.entity.Contest;
 import com.adityavikas.codeverse.entity.Problem;
 import com.adityavikas.codeverse.entity.User;
 import com.adityavikas.codeverse.middleware.Middlewares;
-import com.adityavikas.codeverse.repository.ContestRepository;
-import com.adityavikas.codeverse.repository.ProblemRepository;
-import com.adityavikas.codeverse.repository.UserRepository;
+import com.adityavikas.codeverse.repository.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -32,6 +30,10 @@ public class ContestService {
     private final ContestRepository contestRepository;
 
     private final ProblemRepository problemRepository;
+
+    private final ProblemDetailRepository problemDetailRepository;
+
+    private final TestcaseRepository testcaseRepository;
 
     private final UserRepository userRepository;
 
@@ -86,6 +88,8 @@ public class ContestService {
                         .stream()
                         .map(Problem::getId)
                         .toList();
+                problemDetailRepository.deleteAllByProblemId(problemIds);
+                testcaseRepository.deleteAllByProblemId(problemIds);
                 problemRepository.deleteAllById(problemIds);
             }
 

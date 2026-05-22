@@ -28,6 +28,7 @@ public class Problem {
     private int sno;
     @NotNull
     private String title;
+    @Indexed(unique = true)
     private String slug;
     List<String> topicTags = new ArrayList<>();
     private boolean status;

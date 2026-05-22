@@ -1,7 +1,9 @@
 package com.adityavikas.codeverse.controllers;
 
 import com.adityavikas.codeverse.dto.ContestProblemDTO;
+import com.adityavikas.codeverse.dto.ContestProblemResponseDTO;
 import com.adityavikas.codeverse.services.ProblemService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -38,8 +41,22 @@ public class ContestProblemController {
         } catch (Exception e) {
             return new ResponseEntity<>(returnResponse, HttpStatus.BAD_REQUEST);
         }
-
     }
 
+
+    @Operation(summary = "This is used to fetch all contest problem")
+    @GetMapping("/fetchContestProblemForEditor/{contestId}")
+    private ResponseEntity<?> fetchAllContestProblem(@PathVariable ObjectId contestId){
+        try{
+            List<ContestProblemDTO> allProblems = problemService.getContestProblemsForEditor(contestId);
+            if(allProblems.isEmpty()){
+                return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(allProblems,HttpStatus.OK);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }

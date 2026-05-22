@@ -108,66 +108,48 @@ public class ProblemService {
     }
 
     @Transactional
-    public boolean addEntireProblem(ProblemDTO problemDTO){
-        try{
-            Problem problem = new Problem();
-            String[] tags = problemDTO.getTopicTags().split(",");
-
-            problem.setTitle(problemDTO.getTitle());
-            problem.setSlug(problemDTO.getSlug());
-            problem.setTopicTags(Arrays.stream(tags).toList());
-            problem.setDifficulty(problemDTO.getDifficulty());
-            problem.setSno(problemDTO.getSno());
-            problem.setFunctionName(problemDTO.getFunctionName());
-            problem.setReturnType(problemDTO.getReturnType());
-            problem.setInputType(problemDTO.getInputType());
-            problem.setStatus(problemDTO.isStatus());
-            problem.setAcceptanceRate(problemDTO.getAcceptanceRate());
-            //handling newly added fields
+    public boolean addEntireProblem(ProblemDTO problemDTO) {
+        try {
+            Problem problem = modelMapper.map(problemDTO, Problem.class);
+            problem.setTopicTags(Arrays.stream(problemDTO.getTopicTags().split(",")).toList());
             problem.setContestId(null);
             problem.setIsContestProblem(false);
-            problem.setProblemOrder(0);//0 or null ,will decide later
+            problem.setProblemOrder(0);
             problem.setIsVisible(true);
-
-            //as followed
+            problem.setCreated_at(LocalDateTime.now());
 
             Boolean isProblemSaved = saveProblem(problem);
 
             ObjectId problemId = getProblemIdBySlugName(problemDTO.getSlug());
 
             boolean isAllTestcaseSaved = true;
-
-            for(TestcaseDTO testcaseDTO : problemDTO.getTestCases()){
-                Testcase testcase = new Testcase();
-                testcase.setHidden(testcaseDTO.isHidden());
-                testcase.setInput(testcaseDTO.getInput());
-                testcase.setOutput(testcaseDTO.getOutput());
-                testcase.setExplanation(testcaseDTO.getExplanation());
+            for (TestcaseDTO testcaseDTO : problemDTO.getTestCases()) {
+                Testcase testcase = modelMapper.map(testcaseDTO, Testcase.class);
                 boolean isTestcaseSaved = testcaseService.addTestcase(testcase, problemId.toString());
                 isAllTestcaseSaved = isAllTestcaseSaved && isTestcaseSaved;
             }
 
-            ProblemDetails problemDetails = new ProblemDetails();
-
+            ProblemDetails problemDetails = modelMapper.map(problemDTO, ProblemDetails.class);
             problemDetails.setProblemId(problemId);
-            problemDetails.setDescription(problemDTO.getDescription());
-            problemDetails.setEditorial(problemDetails.getEditorial());
-            problemDetails.setTemplates((problemDTO.getTemplates()!=null?problemDTO.getTemplates():new HashMap<>()));
-            problemDetails.setSolutions((problemDTO.getSolutions()!=null?problemDTO.getSolutions():new HashMap<>()));
-            problemDetails.setTimeComplexity((problemDTO.getTimeComplexity()!=null?problemDTO.getTimeComplexity():new HashMap<>()));
-            problemDetails.setSpaceComplexity((problemDTO.getSpaceComplexity()!=null?problemDTO.getSpaceComplexity():new HashMap<>()));
-            problemDetails.setAlgorithmSteps(problemDTO.getAlgorithmSteps());
 
             boolean isProblemDetailsSaved = problemDetailService.problemDetailsAdded(problemDetails);
 
+            if (!isProblemDetailsSaved || !isAllTestcaseSaved) {
+                logger.error("ProblemDetails or testcases failed, rolling back problem");
+                problemRepository.deleteById(problemId);
+                problemRepository.deleteById(problemId);
+                testcaseRepository.deleteByProblemId(problemId);
+                return false;
+            }
+
             return isProblemDetailsSaved && isAllTestcaseSaved && isProblemSaved;
 
+
         } catch (Exception e) {
-            logger.error("Problem not added completely");
+            logger.error("Problem not added completely", e);
             return false;
         }
     }
-
     public boolean addContestProblem(ObjectId contestId,ContestProblemDTO contestProblemDTO) {
 
         try {
@@ -211,10 +193,6 @@ public class ProblemService {
                 ContestProblemResponseDTO dto = modelMapper.map(problem, ContestProblemResponseDTO.class);
 
                 ProblemDetails details = problemDetailRepository.findByProblemId(problem.getId());
-                if (details != null) {
-                    dto.setDescription(details.getDescription());
-                    dto.setTemplates(details.getTemplates());
-                }
 
                 List<Testcase> testcases = testcaseRepository.findAllByProblemId(problem.getId());
 
@@ -232,4 +210,43 @@ public class ProblemService {
             return List.of();
         }
     }
+
+    public List<ContestProblemDTO> getContestProblemsForEditor(ObjectId contestId) {
+        try {
+            List<Problem> problems = problemRepository.findByContestId(contestId);
+            List<ContestProblemDTO> response = new ArrayList<>();
+
+            for (Problem problem : problems) {
+                ContestProblemDTO dto = modelMapper.map(problem, ContestProblemDTO.class);
+
+                ProblemDetails details = problemDetailRepository.findByProblemId(problem.getId());
+                if (details != null) {
+                    dto.setDescription(details.getDescription());
+                    dto.setEditorial(details.getEditorial());
+                    dto.setTemplates(details.getTemplates());
+                    dto.setSolutions(details.getSolutions());
+                    dto.setTimeComplexity(details.getTimeComplexity());
+                    dto.setSpaceComplexity(details.getSpaceComplexity());
+                    dto.setAlgorithmSteps(details.getAlgorithmSteps());
+                }
+
+                List<TestcaseDTO> testcaseDTOs = testcaseRepository.findAllByProblemId(problem.getId())
+                        .stream()
+                        .map(testcase -> modelMapper.map(testcase, TestcaseDTO.class))
+                        .collect(Collectors.toList());
+                dto.setTestCases(testcaseDTOs);
+
+                response.add(dto);
+            }
+
+            return response.stream()
+                    .sorted(Comparator.comparingInt(ContestProblemDTO::getProblemOrder))
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            logger.error("Error fetching contest problems", e);
+            return List.of();
+        }
+    }
+
 }

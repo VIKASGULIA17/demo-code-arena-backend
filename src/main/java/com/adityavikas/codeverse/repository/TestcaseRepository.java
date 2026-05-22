@@ -11,4 +11,5 @@ public interface TestcaseRepository extends MongoRepository<Testcase, ObjectId> 
     List<Testcase> findAllByProblemId(ObjectId problemId);
     void deleteByProblemId(ObjectId problemId);
 
+    void deleteAllByProblemId(List<ObjectId> problemIds);
 }
