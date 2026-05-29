@@ -9,13 +9,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.parameters.P;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -59,6 +55,7 @@ public class PublicController {
     @Operation(summary = "To check API health")
     @GetMapping("/health-check")
     public ResponseEntity<?> checkHealth(){
+
         return ResponseEntity.ok(List.of("Hey !","It's","Working"));
     }
 
@@ -275,5 +272,19 @@ public class PublicController {
             return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
         }
     }
+//    @Operation(summary = "This is used to fetch driver code of a categroy")
+//    @PostMapping("/getDriverCode")
+//    private ResponseEntity<?> fetchDriverCode(@RequestBody DriverCodeFetchDTO driverCodeFetchDTO){
+//
+//        DriverResponse driverResponse = driverCodeService.getDriverCode(driverCodeFetchDTO);
+//
+//        if(!driverResponse.isSuccess()){
+//            return new ResponseEntity<>(driverResponse.payload(),HttpStatus.BAD_REQUEST);
+//
+//        }
+//
+//        return new ResponseEntity<>(driverResponse.payload(),HttpStatus.OK);
+//
+//    }
 
 }
