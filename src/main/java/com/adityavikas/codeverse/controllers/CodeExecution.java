@@ -1,8 +1,10 @@
 package com.adityavikas.codeverse.controllers;
 import com.adityavikas.codeverse.dto.ExecuteRequest;
 import com.adityavikas.codeverse.dto.JdoodleResponseDTO;
+import com.adityavikas.codeverse.middleware.Middlewares;
 import com.adityavikas.codeverse.utils.CodeExecutionUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +19,21 @@ public class CodeExecution {
 
     private final CodeExecutionUtil codeExecutionUtil;
 
-    @PostMapping("/runCode")
-    private ResponseEntity<?> runUserCode(@RequestBody ExecuteRequest executeRequest){
+    private final Middlewares middlewares;
 
-//        codeExecutionUtil.printKey();
+    @PostMapping("/runCode")
+    private ResponseEntity<?> runUserCode(HttpServletRequest request,@RequestBody ExecuteRequest executeRequest){
+
+        String authenticationHeader=request.getHeader("Authorization");
+
+        if(authenticationHeader==null){
+            return new ResponseEntity<>("Login to run Code",HttpStatus.UNAUTHORIZED);
+        }
+
+        String username=middlewares.getUserNameByJwt(authenticationHeader);
+
+
+
 
         JdoodleResponseDTO response=codeExecutionUtil.runJdoodleCode(executeRequest);
 
@@ -31,33 +44,6 @@ public class CodeExecution {
         }
 
     }
-
-
-
-
-
-
-
-//    @PostMapping("/add")
-//    private ResponseEntity<?> createDriverCode(@RequestBody DriverCode driverCode){
-//
-//        Map<String,Boolean> response=new HashMap<>();
-//
-//        Boolean isDriverCodeAdded=driverCodeService.addDriverCode(driverCode);
-//
-//        if(isDriverCodeAdded){
-//
-//            response.put("Driver Code added successfully!",true);
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//
-//        }
-//        else{
-//            response.put("Error occurred while saving driver code",false);
-//            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
-//        }
-//
-//
-//    }
 
 
 
