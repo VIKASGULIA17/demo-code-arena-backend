@@ -43,6 +43,25 @@ public class ContestProblemController {
         }
     }
 
+    @PutMapping("/{contestId}/problem/{problemId}")
+    private ResponseEntity<?> updateProblemForContest(@PathVariable ObjectId contestId, @PathVariable ObjectId problemId, @RequestBody ContestProblemDTO contestProblemDTO){
+
+        Map<String,Integer> returnResponse = new HashMap<>();
+        returnResponse.put("status",0);
+        try{
+            boolean isProblemUpdated = problemService.updateContestProblem(contestId, problemId, contestProblemDTO);
+            if(isProblemUpdated){
+                returnResponse.put("status",1);
+                return new ResponseEntity<>(returnResponse, HttpStatus.OK);
+            }
+            else{
+                return new ResponseEntity<>(returnResponse, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(returnResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
     @Operation(summary = "This is used to fetch all contest problem")
     @GetMapping("/fetchContestProblemForEditor/{contestId}")

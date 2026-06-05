@@ -184,6 +184,59 @@ public class ProblemService {
 
     }
 
+    @Transactional
+    public boolean updateContestProblem(ObjectId contestId, ObjectId problemId, ContestProblemDTO contestProblemDTO) {
+        try {
+            Contest contest = contestRepository.findById(contestId).orElse(null);
+            if (contest == null) return false;
+
+            Problem existingProblem = problemRepository.findById(problemId).orElse(null);
+            if (existingProblem == null || !contestId.equals(existingProblem.getContestId())) return false;
+
+            existingProblem.setSno(contestProblemDTO.getSno());
+            existingProblem.setTitle(contestProblemDTO.getTitle());
+            existingProblem.setSlug(contestProblemDTO.getSlug());
+            if (contestProblemDTO.getTopicTags() != null) {
+                existingProblem.setTopicTags(Arrays.stream(contestProblemDTO.getTopicTags().split(",")).toList());
+            }
+            existingProblem.setDifficulty(contestProblemDTO.getDifficulty());
+            existingProblem.setAcceptanceRate((int) contestProblemDTO.getAcceptanceRate());
+            existingProblem.setInputType(contestProblemDTO.getInputType());
+            existingProblem.setReturnType(contestProblemDTO.getReturnType());
+            existingProblem.setFunctionName(contestProblemDTO.getFunctionName());
+            existingProblem.setProblemOrder(contestProblemDTO.getProblemOrder());
+
+            problemRepository.save(existingProblem);
+
+            ProblemDetails existingDetails = problemDetailRepository.findByProblemId(problemId);
+            if (existingDetails == null) {
+                existingDetails = new ProblemDetails();
+                existingDetails.setProblemId(problemId);
+            }
+            existingDetails.setDescription(contestProblemDTO.getDescription());
+            existingDetails.setEditorial(contestProblemDTO.getEditorial());
+            existingDetails.setTemplates(contestProblemDTO.getTemplates());
+            existingDetails.setSolutions(contestProblemDTO.getSolutions());
+            existingDetails.setTimeComplexity(contestProblemDTO.getTimeComplexity());
+            existingDetails.setSpaceComplexity(contestProblemDTO.getSpaceComplexity());
+            existingDetails.setAlgorithmSteps(contestProblemDTO.getAlgorithmSteps());
+            problemDetailRepository.save(existingDetails);
+
+            testcaseRepository.deleteByProblemId(problemId);
+            boolean isAllTestcaseSaved = true;
+            for (TestcaseDTO testcaseDTO : contestProblemDTO.getTestCases()) {
+                Testcase testcase = modelMapper.map(testcaseDTO, Testcase.class);
+                boolean isTestcaseSaved = testcaseService.addTestcase(testcase, problemId.toString());
+                isAllTestcaseSaved = isAllTestcaseSaved && isTestcaseSaved;
+            }
+
+            return isAllTestcaseSaved;
+        } catch (Exception e) {
+            logger.error("Problem not updated completely", e);
+            return false;
+        }
+    }
+
     public List<ContestProblemResponseDTO> getContestProblems(ObjectId contestId) {
         try {
             List<Problem> problems = problemRepository.findByContestId(contestId);

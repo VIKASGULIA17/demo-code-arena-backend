@@ -1,5 +1,6 @@
 package com.adityavikas.codeverse.controllers;
 
+import com.adityavikas.codeverse.dto.ContestDTO;
 import com.adityavikas.codeverse.dto.ContestProblemResponseDTO;
 import com.adityavikas.codeverse.entity.Contest;
 import com.adityavikas.codeverse.entity.User;
@@ -77,6 +78,25 @@ public class ContestController {
         }
         catch(Exception e){
             return new ResponseEntity<>(returnResponse,HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Operation(summary = "This endpoint is used to modify the contest details")
+    @PutMapping("/update/{contestId}")
+    public ResponseEntity<?> updateContest(HttpServletRequest request, @PathVariable String contestId, @RequestBody ContestDTO contestDTO) {
+        Map<String, Integer> response = new HashMap<>();
+        response.put("status", 0);
+        try {
+            User user = middlewares.getUserByJwt(request.getHeader("Authorization"));
+            boolean isUpdated = contestService.updateContest(user, new ObjectId(contestId), contestDTO);
+            if (isUpdated) {
+                response.put("status", 1);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
