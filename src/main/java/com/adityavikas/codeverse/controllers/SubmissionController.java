@@ -34,6 +34,9 @@ public class SubmissionController {
     public ResponseEntity<?> createSubmission(HttpServletRequest request,@RequestBody Submission submission){
         String authorizationHeader = request.getHeader("Authorization");
         String username = middlewares.getUserNameByJwt(authorizationHeader);
+        if (username == null) {
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
         submission.setUsername(username);
         boolean isSubmissionStored = submissionService.createSubmission(submission);
         Map<String,Integer> returnResponse = new HashMap<>();
@@ -52,6 +55,9 @@ public class SubmissionController {
     public ResponseEntity<?> fetchAllSubmissions(HttpServletRequest request){
         String authorizationHeader = request.getHeader("Authorization");
         String username = middlewares.getUserNameByJwt(authorizationHeader);
+        if (username == null) {
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
         List<Submission> allSubmissions = submissionService.getAllSubmissionOfUser(username);
         if(allSubmissions!=null && !allSubmissions.isEmpty()){
             return new ResponseEntity<>(allSubmissions,HttpStatus.OK);
@@ -64,6 +70,9 @@ public class SubmissionController {
     public ResponseEntity<?> fetchAllSubmissionsForSameProblem(HttpServletRequest request, @PathVariable ObjectId problemId){
         String authorizationHeader = request.getHeader("Authorization");
         String username = middlewares.getUserNameByJwt(authorizationHeader);
+        if (username == null) {
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
         List<Submission> allSubmissions = submissionService.getAllSubmissionForSameProblemByUser(username,problemId);
         if(!allSubmissions.isEmpty()){
             return new ResponseEntity<>(allSubmissions,HttpStatus.OK);

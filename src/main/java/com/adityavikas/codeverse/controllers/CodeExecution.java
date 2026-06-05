@@ -32,8 +32,9 @@ public class CodeExecution {
 
         String username=middlewares.getUserNameByJwt(authenticationHeader);
 
-
-
+        if(username == null){
+            return new ResponseEntity<>("Login to run Code",HttpStatus.UNAUTHORIZED);
+        }
 
         JdoodleResponseDTO response=codeExecutionUtil.runJdoodleCode(executeRequest);
 
