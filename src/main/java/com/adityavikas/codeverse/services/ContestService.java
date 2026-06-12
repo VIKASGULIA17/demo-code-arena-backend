@@ -74,10 +74,10 @@ public class ContestService {
                 return false;
             }
 
-            if(contest.getStartTime().isBefore(LocalDateTime.now())){
-                //contest start date has passed
-                return false; //cant delete passed contest
-            }
+//            if(contest.getStartTime().isBefore(LocalDateTime.now())){
+//                //contest start date has passed
+//                return false; //cant delete passed contest
+//            }
 
 
 

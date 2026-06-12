@@ -47,15 +47,14 @@ public class ProblemService {
 
     private final ProblemDetailRepository problemDetailRepository;
 
-    public Boolean saveProblem(Problem problem){
-        try{
+    public Problem saveProblem(Problem problem) {
+        try {
             problem.setCreated_at(LocalDateTime.now());
-            problemRepository.save(problem);
+            return problemRepository.save(problem);
         } catch (Exception e) {
-            logger.error("Problem not saved");
-            return false;
+            logger.error("Problem not saved", e);
+            return null;
         }
-        return true;
     }
 
     public List<Problem> fetchAllProblems(){
@@ -118,7 +117,10 @@ public class ProblemService {
             problem.setIsVisible(true);
             problem.setCreated_at(LocalDateTime.now());
 
-            Boolean isProblemSaved = saveProblem(problem);
+            Problem savedProblem = saveProblem(problem);
+            if (savedProblem == null) {
+                return false;
+            }
 
             ObjectId problemId = getProblemIdBySlugName(problemDTO.getSlug());
 
@@ -142,7 +144,7 @@ public class ProblemService {
                 return false;
             }
 
-            return isProblemDetailsSaved && isAllTestcaseSaved && isProblemSaved;
+            return isProblemDetailsSaved && isAllTestcaseSaved;
 
 
         } catch (Exception e) {
@@ -150,19 +152,28 @@ public class ProblemService {
             return false;
         }
     }
-    public boolean addContestProblem(ObjectId contestId,ContestProblemDTO contestProblemDTO) {
-
+    public boolean addContestProblem(ObjectId contestId, ContestProblemDTO contestProblemDTO) {
         try {
             Contest contest = contestRepository.findById(contestId).orElse(null);
             if (contest == null) return false;
 
             Problem problem = modelMapper.map(contestProblemDTO, Problem.class);
+
+            // fix topicTags manually since DTO has String but entity has List<String>
+            if (contestProblemDTO.getTopicTags() != null && !contestProblemDTO.getTopicTags().isEmpty()) {
+                List<String> tags = Arrays.asList(contestProblemDTO.getTopicTags().split(","));
+                problem.setTopicTags(tags);
+            }
+
             problem.setContestId(contestId);
             problem.setIsContestProblem(true);
             problem.setIsVisible(false);
 
-            Boolean isProblemSaved = saveProblem(problem);
-            ObjectId problemId = getProblemIdBySlugName(contestProblemDTO.getSlug());
+            // get saved problem with generated ID directly
+            Problem savedProblem = saveProblem(problem);
+            if (savedProblem == null) return false;
+
+            ObjectId problemId = savedProblem.getId();
 
             boolean isAllTestcaseSaved = true;
             for (TestcaseDTO testcaseDTO : contestProblemDTO.getTestCases()) {
@@ -175,15 +186,14 @@ public class ProblemService {
             problemDetails.setProblemId(problemId);
 
             boolean isProblemDetailsSaved = problemDetailService.problemDetailsAdded(problemDetails);
-            return isProblemDetailsSaved && isAllTestcaseSaved && isProblemSaved;
+
+            return isProblemDetailsSaved && isAllTestcaseSaved;
+
         } catch (Exception e) {
             logger.error("Problem not added completely", e);
             return false;
         }
-
-
     }
-
     @Transactional
     public boolean updateContestProblem(ObjectId contestId, ObjectId problemId, ContestProblemDTO contestProblemDTO) {
         try {
@@ -246,6 +256,10 @@ public class ProblemService {
                 ContestProblemResponseDTO dto = modelMapper.map(problem, ContestProblemResponseDTO.class);
 
                 ProblemDetails details = problemDetailRepository.findByProblemId(problem.getId());
+                if (details != null) {
+                    dto.setDescription(details.getDescription());
+                    dto.setTemplates(details.getTemplates());
+                }
 
                 List<Testcase> testcases = testcaseRepository.findAllByProblemId(problem.getId());
 
@@ -271,6 +285,9 @@ public class ProblemService {
 
             for (Problem problem : problems) {
                 ContestProblemDTO dto = modelMapper.map(problem, ContestProblemDTO.class);
+                if (problem.getTopicTags() != null) {
+                    dto.setTopicTags(String.join(",", problem.getTopicTags()));
+                }
 
                 ProblemDetails details = problemDetailRepository.findByProblemId(problem.getId());
                 if (details != null) {

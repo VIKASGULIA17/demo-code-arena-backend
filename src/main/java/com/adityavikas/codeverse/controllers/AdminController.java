@@ -137,6 +137,7 @@ public class AdminController {
             returnResponse.put("status",1);
             return new ResponseEntity<>(returnResponse,HttpStatus.OK);
         }
+        log.error("failed to delete contest");
         return new ResponseEntity<>(returnResponse,HttpStatus.BAD_REQUEST);
     }
 
