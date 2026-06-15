@@ -159,7 +159,6 @@ public class ProblemService {
 
             Problem problem = modelMapper.map(contestProblemDTO, Problem.class);
 
-            // fix topicTags manually since DTO has String but entity has List<String>
             if (contestProblemDTO.getTopicTags() != null && !contestProblemDTO.getTopicTags().isEmpty()) {
                 List<String> tags = Arrays.asList(contestProblemDTO.getTopicTags().split(","));
                 problem.setTopicTags(tags);
@@ -169,7 +168,7 @@ public class ProblemService {
             problem.setIsContestProblem(true);
             problem.setIsVisible(false);
 
-            // get saved problem with generated ID directly
+            //getting smae problem
             Problem savedProblem = saveProblem(problem);
             if (savedProblem == null) return false;
 
