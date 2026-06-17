@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ContestDTO {
     private String contestName;
-
     private String contestDescription;
     private LocalDateTime startTime;
     private int duration;

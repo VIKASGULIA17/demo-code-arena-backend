@@ -31,9 +31,7 @@ public class CodeExecutionUtil {
         LanguageFormatDTO responseFormat;
 
         if(normalizedLang.equals("python") || normalizedLang.equals("python3")){
-
             responseFormat=new LanguageFormatDTO("python3","3");
-
         }
         else if(normalizedLang.equals("cpp") || normalizedLang.equals("c++")){
             responseFormat=new LanguageFormatDTO("cpp","5");
@@ -47,9 +45,7 @@ public class CodeExecutionUtil {
         else{
             responseFormat=new LanguageFormatDTO("nodejs","4");
         }
-
         return responseFormat;
-
     }
 
 

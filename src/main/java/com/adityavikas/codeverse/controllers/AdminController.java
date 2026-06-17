@@ -101,7 +101,7 @@ public class AdminController {
         }
     }
 
-    @Operation(summary = "This endpoint is used to modify the contest by contest name")
+    @Operation(summary = "This endpoint is used to modify the contest by contest id")
     @PutMapping("/contest/update/{contestId}")
     public ResponseEntity<?> updateContest(HttpServletRequest request,@PathVariable String contestId,@RequestBody ContestDTO contestDTO){
 
