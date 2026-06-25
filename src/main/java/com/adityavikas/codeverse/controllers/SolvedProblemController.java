@@ -11,6 +11,6 @@ public class SolvedProblemController {
 
     private final SolvedProblemRepository solvedProblemRepository;
 
-    
+
 
 }
