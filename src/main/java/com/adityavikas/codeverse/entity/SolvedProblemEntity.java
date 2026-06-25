@@ -8,4 +8,5 @@ public class SolvedProblemEntity {
     private ObjectId problemId;
     private LocalDateTime solvedAt;
     private int score;
+    private int penalty; // how many wrong submissions user made (to make it like leetcode) 
 }

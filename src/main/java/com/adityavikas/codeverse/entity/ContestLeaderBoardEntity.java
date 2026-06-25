@@ -24,6 +24,8 @@ public class ContestLeaderBoardEntity {
 //    Medium = 3pt
 //     Hard = 5pt
 
+
+
     private int totalScore;
     private int totalTime;//duration
 
