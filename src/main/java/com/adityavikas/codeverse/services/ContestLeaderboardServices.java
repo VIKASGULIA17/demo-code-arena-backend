@@ -1,7 +1,10 @@
 package com.adityavikas.codeverse.services;
 
+import com.adityavikas.codeverse.dto.ContestLeaderBoardDTO;
 import com.adityavikas.codeverse.dto.ContestLeaderBoardResponseDTO;
+import com.adityavikas.codeverse.dto.SolvedProblemDTO;
 import com.adityavikas.codeverse.entity.ContestLeaderBoardEntity;
+import com.adityavikas.codeverse.entity.SolvedProblemEntity;
 import com.adityavikas.codeverse.repository.ContestLeaderBoardRepository;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
@@ -46,6 +49,31 @@ public class ContestLeaderboardServices {
             logger.error("Error occured while fetching contest");
             return new ResponseEntity<>("0", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
+    }
+
+
+    public boolean createContestLeaderboard(ContestLeaderBoardDTO userResponse){
+
+        try{
+
+            ContestLeaderBoardEntity leaderBoardData=modelMapper.map(userResponse,ContestLeaderBoardEntity.class);
+
+            List<SolvedProblemDTO> solvedProblemEntity=userResponse.getSolvedProblems();
+//            solvedProblemEntity.set
+
+            //to set score i'll have to extract data from solved problem
+//            leaderBoardData.setTotalScore();
+
+
+
+            return true;
+
+        } catch (Exception e) {
+            logger.error("Error occurred while creating leaderboard");
+            return false;
+        }
+
 
     }
 
