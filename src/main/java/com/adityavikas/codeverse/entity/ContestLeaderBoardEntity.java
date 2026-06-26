@@ -24,6 +24,8 @@ public class ContestLeaderBoardEntity {
 //    Medium = 3pt
 //     Hard = 5pt
 
+//    4th -> penalty
+
 
 
     private int totalScore;
